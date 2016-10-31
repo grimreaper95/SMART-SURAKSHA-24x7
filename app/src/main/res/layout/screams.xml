@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/mytoolbar2"
+        layout="@layout/toolbar"></include>
+
+    <Button
+        android:id="@+id/maleScream"
+        android:layout_width="103dp"
+        android:layout_height="106dp"
+        android:text="Male Scream"
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="140dp"/>
+
+    <Button
+        android:id="@+id/femaleScream"
+        android:layout_width="103dp"
+        android:layout_height="106dp"
+        android:layout_marginTop="60dp"
+        android:layout_marginLeft="140dp"
+        android:text="Female Scream"
+        />
+
+    <Button
+        android:id="@+id/policeSiren"
+        android:layout_width="103dp"
+        android:layout_height="106dp"
+        android:layout_marginTop="60dp"
+        android:layout_marginLeft="140dp"
+        android:text="Police Siren"
+        />
+
+</LinearLayout>

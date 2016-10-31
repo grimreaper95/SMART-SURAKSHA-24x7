@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/emergencyContacts"
+            android:title="Emergency Contacts"
+            android:icon="@drawable/emergency_contacts"
+            >
+        </item>
+        <item
+            android:id="@+id/medicalInformation"
+            android:title="Medical Information"
+            android:icon="@drawable/medical_info"
+            >
+        </item>
+        <item
+            android:id="@+id/settings"
+            android:title="Settings"
+            android:icon="@drawable/settings"
+            >
+        </item>
+        <item
+            android:id="@+id/defenseTechniques"
+            android:title="Self Defense Techniques"
+            android:icon="@drawable/self_defense"
+            >
+        </item>
+        <item
+            android:id="@+id/rateUs"
+            android:title="Rate Us"
+            android:icon="@drawable/rating_star">
+        </item>
+    </group>
+</menu>
