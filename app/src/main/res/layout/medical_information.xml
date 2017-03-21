@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
+    <include
+        android:id="@+id/mytoolbar3"
+        layout="@layout/toolbar"></include>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="56dp">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="500dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:text="Diabetic:"
+                android:textSize="20sp"
+                android:id="@+id/diabeticVal"
+                android:layout_below="@+id/medical_history"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="40dp"/>
+
+
+            <TextView
+                android:text="Allergies:"
+                android:layout_marginTop="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:textSize="20sp"
+                android:id="@+id/allergies"
+                android:layout_alignBottom="@+id/allergies_val"
+                android:layout_marginLeft="40dp"
+                android:layout_below="@+id/diabeticVal">
+            </TextView>
+
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:ems="10"
+                android:id="@+id/personal_doctor_no"
+                android:hint="Type Here"
+                android:layout_alignBaseline="@+id/textView9"
+                android:layout_alignBottom="@+id/textView9"
+                android:layout_toEndOf="@+id/textView9" />
+
+            <TextView
+                android:text="Personal Doctor:"
+                android:textSize="20sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView9"
+                android:layout_below="@+id/allergies"
+                android:layout_alignStart="@+id/allergies" />
+
+            <TextView
+                android:layout_marginTop="20dp"
+                android:text="Insurance Information"
+                android:layout_width="wrap_content"
+                android:textSize="20sp"
+                android:textColor="@android:color/black"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView10"
+                android:layout_below="@+id/personal_doctor_no"
+                android:layout_centerHorizontal="true" />
+
+            <!--<android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:id="@+id/name"
+                android:layout_marginLeft="13dp"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true">
+-->
+            <!--</android.support.design.widget.TextInputLayout>-->
+
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"
+                android:ems="10"
+                android:id="@+id/insurance_company_name"
+                android:layout_marginStart="12dp"
+                android:layout_alignBaseline="@+id/textView11"
+                android:layout_alignBottom="@+id/textView11"
+                android:layout_alignStart="@+id/personal_doctor_no"
+                android:hint="Type Here" />
+
+            <TextView
+                android:text="Company Name:"
+                android:textSize="20sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView11"
+                android:layout_below="@+id/textView10"
+                android:layout_toStartOf="@+id/insurance_company_name"
+                android:layout_marginTop="15dp" />
+
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"
+                android:ems="8"
+                android:id="@+id/allergies_val"
+                android:hint="Type Here"
+
+                android:layout_below="@+id/diabetic_val"
+                android:layout_toEndOf="@+id/allergies" />
+
+            <TextView
+                android:text="Insurance ID:"
+                android:textSize="20sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView12"
+                android:layout_below="@+id/textView11"
+                android:layout_marginTop="10dp"
+                android:layout_alignStart="@+id/textView9" />
+
+            <!--<android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/address"
+                android:layout_below="@+id/blood_group"
+                android:layout_alignParentEnd="true">
+
+            </android.support.design.widget.TextInputLayout>-->
+
+            <TextView
+                android:text="Medical History"
+                android:textSize="20sp"
+                android:textColor="@android:color/black"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/medical_history"
+                android:layout_below="@+id/address"
+                android:layout_alignEnd="@+id/textView10"
+                android:layout_marginEnd="13dp" />
+
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"
+                android:ems="10"
+                android:id="@+id/insurance_id_val"
+                android:hint="Type Here"
+                android:layout_alignBaseline="@+id/textView12"
+                android:layout_alignBottom="@+id/textView12"
+                android:layout_alignParentEnd="true" />
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Blood Group"
+                android:id="@+id/blood_group"
+                android:layout_below="@+id/name"
+                android:layout_alignStart="@+id/name" />
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Address"
+                android:id="@+id/address"
+                android:layout_below="@+id/blood_group"
+                android:layout_alignStart="@+id/blood_group" />
+
+            <EditText
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"
+                android:ems="5"
+                android:textSize="20sp"
+                android:id="@+id/diabetic_val"
+                android:hint="Yes/No"
+                android:layout_below="@+id/medical_history"
+                android:layout_alignStart="@+id/medical_history" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Save"
+                android:id="@+id/saveInfo"
+                android:layout_below="@+id/insurance_id_val"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="24dp" />
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Name"
+                android:id="@+id/name"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="17dp" />
+
+
+        </RelativeLayout>
+
+
+    </ScrollView>
+
+
+</RelativeLayout>

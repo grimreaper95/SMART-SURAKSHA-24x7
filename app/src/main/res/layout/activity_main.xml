@@ -28,7 +28,6 @@
             android:layout_alignBaseline="@+id/textView"
             android:layout_alignBottom="@+id/textView"
             android:layout_toEndOf="@+id/textView" />
-
         <ImageView
             android:layout_width="60dp"
             android:layout_height="50dp"
@@ -37,15 +36,15 @@
             android:adjustViewBounds="true"
             android:id="@+id/scream"
             android:layout_marginEnd="37dp"
-            android:layout_alignBottom="@+id/imageButton2"
+            android:layout_alignBottom="@+id/camera"
             android:layout_alignParentEnd="true" />
-
         <ImageView
             android:layout_width="60dp"
             android:layout_height="50dp"
-            android:id="@+id/imageButton2"
+            android:id="@+id/camera"
             android:scaleType="fitCenter"
             android:src="@drawable/camera"
+            android:onClick="liveStreaming"
             android:layout_alignTop="@+id/imageButton"
             android:layout_centerHorizontal="true" />
 
@@ -95,7 +94,7 @@
             android:layout_marginBottom="31dp"
             android:layout_marginEnd="33dp"
             android:layout_alignParentBottom="true"
-            android:layout_toStartOf="@+id/imageButton2" />
+            android:layout_toStartOf="@+id/camera" />
 
         <ImageView
             android:layout_width="250dp"
@@ -121,7 +120,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/textView4"
-            android:layout_below="@+id/imageButton2"
+            android:layout_below="@+id/camera"
             android:layout_centerHorizontal="true" />
 
         <TextView

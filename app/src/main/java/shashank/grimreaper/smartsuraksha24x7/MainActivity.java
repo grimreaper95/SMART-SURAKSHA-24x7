@@ -1,15 +1,18 @@
 package shashank.grimreaper.smartsuraksha24x7;
-
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -22,21 +25,28 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
 import android.text.style.LocaleSpan;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
+import com.google.android.gms.maps.model.LatLng;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity implements LocationListener{
-
     DrawerLayout dlayout;
     ActionBarDrawerToggle toggle;
     ImageView policeStation,hospital ;
-    ImageView panicButton ,scream;
+    ImageView panicButton ,scream,camera;
     protected LocationManager locationManager;
-    protected LocationListener locationListener;
     Double latitude,longitude;
-    @Override
+    SQLiteDatabase db;
+    SharedPreferences sp;
+    SharedPreferences.Editor editor;
+    String primaryContactName,primaryContactPhno;
+    SmsManager smsManager;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -46,45 +56,142 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setHomeButtonEnabled(true);
         }
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        sp = PreferenceManager.getDefaultSharedPreferences(this);
+        editor = sp.edit();
 
-        if ( ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION ) != PackageManager.PERMISSION_GRANTED ) {
+        DBHelper helper = new DBHelper(this);
+        db = helper.getWritableDatabase();
+
+        primaryContactName = sp.getString("primaryContactName","dummy");
+        primaryContactPhno = sp.getString("primaryContactPhno","123");
+
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if ( ContextCompat.checkSelfPermission( this, Manifest.permission.ACCESS_FINE_LOCATION ) == PackageManager.PERMISSION_GRANTED ) {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
         }
-        if ( Build.VERSION.SDK_INT >= 23 &&
-                ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return  ;
+        else{
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED) {
+                // Should we show an explanation?
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},200);
+                } else {
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 200);
+                }
+            }
         }
-
 
         policeStation = (ImageView)findViewById(R.id.policeStation);
         hospital = (ImageView)findViewById(R.id.hospital);
         scream = (ImageView)findViewById(R.id.scream);
-
-
         policeStation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-             ;//   startActivity(new Intent(MainActivity.this,NearestPoliceStation.class));
+                startActivity(new Intent(MainActivity.this,NearestPoliceStation.class));
             }
         });
+
+        hospital.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this,NearestHospital.class));
+            }
+        });
+
+
+
+
 
         panicButton = (ImageView)findViewById(R.id.panicButton);
         panicButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //String uri = "http://maps.google.com/maps?saddr=" + currentLocation.getLatitude()+","+currentLocation.getLongitude();
-                SmsManager smsManager = SmsManager.getDefault();
+                primaryContactName = sp.getString("primaryContactName","dummy");
+                primaryContactPhno = sp.getString("primaryContactPhno","123");
+
+                smsManager = SmsManager.getDefault();
                 StringBuffer smsBody = new StringBuffer();
 
-                String tempUrl = "http://maps.google.com/?q=23.412894,85.441745";
+                String latitude = sp.getString("latitude","23.412894");
+                String longitude = sp.getString("longitude","85.44175");
+
+                String tempUrl = "http://maps.google.com/?q="+latitude+","+longitude;
                 smsBody.append("Please help me. I am at this location : " + tempUrl);
-                smsManager.sendTextMessage("+919199095326", null, smsBody.toString(), null, null);
-                smsManager.sendTextMessage("+919771661256", null, smsBody.toString(), null, null);
+
+                ArrayList<String> contactNos = getSMSnos();
+                if(contactNos.size() == 0){
+                    Log.d("contactnossize",contactNos.size()+"");
+                    Toast.makeText(MainActivity.this,"No emergency contacts present",Toast.LENGTH_LONG).show();
+                    return ;
+                }
+                //Toast.makeText(MainActivity.this,contactNos.size()+"",Toast.LENGTH_LONG).show();
+                for(int i = 0 ;i < contactNos.size();i++){
+                    smsManager.sendTextMessage(contactNos.get(i), null, smsBody.toString(), null, null);
+                }
+                Toast.makeText(MainActivity.this,"SMS have been sent to emergency contacts",Toast.LENGTH_LONG).show();
+
+                if(primaryContactName.equals("dummy")){
+                    if(primaryContactPhno.equals("123")) {
+                        Toast.makeText(MainActivity.this, "Select a primary emergency contact to call.", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                }
+
+                String phoneNumber = "tel:"+primaryContactPhno;
+                Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse(phoneNumber));
+                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                    Log.d("Call permission", "denied");
+                    return;
+                }
+                Log.d("Call", "success");
+                startActivity(callIntent);
+
+                //call primary emergency contact
+                /*smsManager.sendTextMessage("+918299807010", null, smsBody.toString(), null, null);
+                smsManager.sendTextMessage("+919771661256", null, smsBody.toString(), null, null);*/
             }
         });
+
+
+
+
+
+        camera = (ImageView)findViewById(R.id.camera);
+
+        camera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //primaryContactName = sp.getString(primaryContactName,"dummy");
+                //primaryContactPhno = sp.getString(primaryContactPhno,"123");
+                if(primaryContactName.equals("dummy")){
+                    Toast.makeText(MainActivity.this,"No primary emergency contact present to send live streaming...",Toast.LENGTH_LONG).show();
+                }
+                else {
+                    Toast.makeText(MainActivity.this,"Sending SMS",Toast.LENGTH_LONG).show();
+                    smsManager = SmsManager.getDefault();
+                    StringBuffer smsBody = new StringBuffer();
+                    String latitude = sp.getString("latitude", "23.412");
+                    String longitude = sp.getString("longitude", "85.441");
+                    String tempUrl = "http://maps.google.com/?q=" + latitude + "," + longitude;
+                    smsBody.append("Please help me. I am at this location : " + tempUrl);
+                    smsBody.append(" Please watch my current situation using this live streaming link: ");
+                    smsBody.append("www.smartsuraksha24x7.com");
+                    Log.d("primaryNo",smsBody.toString());
+                    ArrayList<String> parts = smsManager.divideMessage(smsBody.toString());
+                    smsManager.sendMultipartTextMessage(primaryContactPhno, null, parts, null, null);
+                    Intent intent = new Intent(MainActivity.this, LiveStreaming.class);
+                    startActivity(intent);
+                }
+            }
+        });
+
+
+
+
 
         scream.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,6 +203,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
 
 
 
+
+
         dlayout = (DrawerLayout)findViewById(R.id.mydrawerlayout);
         toggle = new ActionBarDrawerToggle(this,dlayout,0,0);
         dlayout.addDrawerListener(toggle);
@@ -103,17 +212,21 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.navigationView);
-
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 final int id = item.getItemId();
                 if(id == R.id.medicalInformation){
-                    //      backgrnd_frag_is_home = true;
-                    /*FragmentTransaction ft = manager.beginTransaction();
-                    ft.replace(R.id.dummy,req_frag);
-                    ft.commit();
-                    */
+                    Intent intent = new Intent(MainActivity.this,MedicalInformation.class);
+                    startActivity(intent);
+                }
+                else if(id == R.id.emergencyContacts){
+                    Intent intent = new Intent(MainActivity.this,EmergencyContacts.class);
+                    startActivity(intent);
+                }
+                else if(id == R.id.selfDefenseTechniques){
+                    Intent intent = new Intent(MainActivity.this,SelfDefenseTechniques.class);
+                    startActivity(intent);
                 }
                 else if(id == R.id.settings){
                     //    backgrnd_frag_is_home = false;
@@ -129,6 +242,24 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         });
     }
 
+    public void livestreaming(){
+        ;
+    }
+
+    public ArrayList<String> getSMSnos(){
+        ArrayList<String> contacts = new ArrayList<>();
+        Cursor cursor = db.rawQuery("select Number from EmergencyContacts",null);
+        if(cursor != null && cursor.moveToFirst()) {
+            if (cursor.getCount() > 0) {
+                while(cursor.moveToNext()) {
+                    String phone = cursor.getString(cursor.getColumnIndex("Number"));
+                    contacts.add(phone);
+                }
+            }
+        }
+        return contacts;
+    }
+
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -142,6 +273,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
     public void onLocationChanged(Location location) {
         latitude = location.getLatitude();
         longitude = location.getLongitude();
+        editor.putString("latitude",latitude+"");
+        editor.putString("longitude",longitude+"");
+        editor.commit();
         //Toast.makeText(getApplicationContext(),latitude +" " + longitude,Toast.LENGTH_LONG).show();
     }
 
@@ -149,14 +283,34 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
     public void onStatusChanged(String s, int i, Bundle bundle) {
 
     }
-
     @Override
     public void onProviderEnabled(String s) {
 
     }
-
     @Override
     public void onProviderDisabled(String s) {
+    }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+            switch (requestCode) {
+                case 200: {
+                    // If request is cancelled, the result arrays are empty.
+                    if (grantResults.length > 0
+                            && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+                        // permission was granted, yay! Do the
+                        // contacts-related task you need to do.
+                    } else {
+                        Toast.makeText(this,"Sorry, please provide Locations permission. Try again",Toast.LENGTH_LONG).show();
+                        // permission denied, boo! Disable the
+                        // functionality that depends on this permission.
+                    }
+                    return;
+                }
+
+                // other 'case' lines to check for other
+                // permissions this app might request
+            }
     }
 }

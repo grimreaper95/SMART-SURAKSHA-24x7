@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+
+    <RelativeLayout
+        android:id="@+id/emergency_contacts"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        tools:context="shashank.grimreaper.smartsuraksha24x7.EmergencyContacts">
+
+        <include
+            android:id="@+id/mytoolbar4"
+            layout="@layout/toolbar"></include>
+
+
+        <ListView
+            android:id="@+id/contact_list"
+            android:layout_marginTop="150dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="56dp"
+            android:id="@+id/medical"
+            android:layout_centerHorizontal="true"
+            android:orientation="vertical">
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:id="@+id/medical_image"
+                android:src="@drawable/medical_plus"
+                android:layout_below="@+id/mytoolbar4"
+                android:layout_centerHorizontal="true" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dial 108"
+                android:layout_gravity="center"/>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_marginTop="56dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <ImageView
+                android:layout_height="80dp"
+                android:layout_width="80dp"
+                android:id="@+id/police_image"
+                android:src="@drawable/police_icon"
+                android:layout_below="@+id/mytoolbar4"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="25dp" />
+
+            <TextView
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dial 100"
+                android:layout_marginLeft="8dp"
+                android:id="@+id/textView6" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:orientation="vertical"
+            android:layout_marginLeft="50dp"
+            android:layout_toRightOf="@+id/medical"
+            >
+
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:id="@+id/fire_image"
+                android:src="@drawable/fire"
+                android:layout_gravity="center"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/mytoolbar4"
+                />
+
+            <TextView
+                android:layout_marginTop="6dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dial 104"
+                android:layout_gravity="center"/>
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/fab"
+        app:fabSize="auto"
+        style="@style/Widget.Design.FloatingActionButton"
+        app:rippleColor="@android:color/holo_red_light"
+        android:src="@drawable/plus"
+        android:onClick="addMoney"
+        android:layout_marginBottom="20dp"
+        android:layout_marginRight="20dp"
+        app:layout_anchor="@id/emergency_contacts"
+        app:layout_anchorGravity="bottom|right|end"
+        />
+
+</android.support.design.widget.CoordinatorLayout>

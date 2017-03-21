@@ -1,5 +1,4 @@
 package shashank.grimreaper.smartsuraksha24x7;
-
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -12,12 +11,12 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -30,9 +29,9 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -41,10 +40,9 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
-
+import org.json.JSONStringer;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -54,37 +52,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-/**
- * Created by Shashank on 23-10-2016.
- */
-
-
-public class NearestPoliceStation extends AppCompatActivity implements AsyncDelegate,OnMapReadyCallback,ActivityCompat.OnRequestPermissionsResultCallback,GoogleApiClient.OnConnectionFailedListener,LocationListener {
-
+public class NearestHospital extends AppCompatActivity implements OnMapReadyCallback,AsyncDelegate,ActivityCompat.OnRequestPermissionsResultCallback,GoogleApiClient.OnConnectionFailedListener,LocationListener {
     GoogleMap mMap;
     private LocationManager locationManager;
     private static final long MIN_TIME = 400;
     private static final float MIN_DISTANCE = 1000;
     private int PROXIMITY_RADIUS = 10000;
-    private static final int REQUEST_INTERNET = 200;
     double mLatitude=0;
     double mLongitude=0;
-    ListView policeStationList ;
+    ListView hospitalList ;
     StringBuilder googlePlacesUrl,googleDistanceUrl,googleDetailedPlacesUrl;
     String curDistance = "100KM";
-    ArrayList<PoliceStationAttr> policeStation;
+    ArrayList<HospitalAttr> hospital ;
     ArrayList<String> distance;
+    ProgressDialog pDialog;
+    MyHospitalAdapter myHospitalAdapter;
+    boolean AllDistanceFound = false;
     SharedPreferences sp;
     SharedPreferences.Editor editor;
-    ProgressDialog pDialog;
-    MyPoliceStationAdapter myPoliceStationAdapter;
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.police_station);
+        setContentView(R.layout.nearest_hospital);
         Toolbar toolbar = (Toolbar)findViewById(R.id.mytoolbar2);
         setSupportActionBar(toolbar);
         if(getSupportActionBar()!=null){
@@ -93,14 +82,18 @@ public class NearestPoliceStation extends AppCompatActivity implements AsyncDele
         }
         sp = PreferenceManager.getDefaultSharedPreferences(this);
         editor = sp.edit();
-        policeStation = new ArrayList<PoliceStationAttr>();
+        hospital = new ArrayList<>();
         distance = new ArrayList<>();
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        policeStationList = (ListView)findViewById(R.id.policeStationList);
+        hospitalList = (ListView)findViewById(R.id.hospitalList);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -110,21 +103,15 @@ public class NearestPoliceStation extends AppCompatActivity implements AsyncDele
             onLocationChanged(location);
         }
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(NearestPoliceStation.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_INTERNET);
+                == PackageManager.PERMISSION_GRANTED) {
+            googleMap.setMyLocationEnabled(true);
         }
-
-        else{
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME, MIN_DISTANCE, this); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
-            googleMap.addMarker(new MarkerOptions().position(new LatLng(mLatitude, mLongitude)).title("You are here"));
-            //googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-            googleMap.getUiSettings().setCompassEnabled(true);
-            mMap.setMyLocationEnabled(true);
-            getData("police");
-        }
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME, MIN_DISTANCE, this); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
+        googleMap.addMarker(new MarkerOptions().position(new LatLng(mLatitude, mLongitude)).title("You are here"));
+        //googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+        googleMap.getUiSettings().setCompassEnabled(true);
+        getData("hospital");
     }
-
-
 
     public void getData(String type){
         googlePlacesUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
@@ -139,31 +126,30 @@ public class NearestPoliceStation extends AppCompatActivity implements AsyncDele
 
     @Override
     public void asyncComplete(boolean success) {
-        ListView policeStationListUpd = (ListView) findViewById(R.id.policeStationList);
-        Log.d("policeSize",policeStation.size()+"");
+        ListView hospitalListUpd = (ListView) findViewById(R.id.hospitalList);
+        Log.d("hosSize",hospital.size()+"");
         View child;
-        for (int i = 0; i < policeStation.size(); i++) {
-            child = policeStationListUpd.getChildAt(i);
+        for (int i = 0; i < hospital.size(); i++) {
+            child = hospitalListUpd.getChildAt(i);
             TextView placeDistance = (TextView) child.findViewById(R.id.placeDistance);
             placeDistance.setText(distance.get(i));
             Log.d(i+"distance123",distance.get(i));
         }
-        myPoliceStationAdapter.notifyDataSetChanged();
+        myHospitalAdapter.notifyDataSetChanged();
     }
 
     public void updateList(){
-        ListView policeStationListUpd = (ListView) findViewById(R.id.policeStationList);
-        Log.d("policeSize",distance.size()+"");
+        ListView hospitalListUpd = (ListView) findViewById(R.id.hospitalList);
+        Log.d("hosSize",distance.size()+"");
         View child;
         for (int i = 0; i < distance.size(); i++) {
-            child = policeStationListUpd.getChildAt(i);
+            child = hospitalListUpd.getChildAt(i);
             TextView placeDistance = (TextView) child.findViewById(R.id.placeDistance);
             placeDistance.setText(distance.get(i));
             Log.d(i+"distance123",distance.get(i));
         }
-        myPoliceStationAdapter.notifyDataSetChanged();
+        myHospitalAdapter.notifyDataSetChanged();
     }
-
 
     public class MyAsyncTask3 extends AsyncTask<String,String,String>{
         @Override
@@ -215,7 +201,7 @@ public class NearestPoliceStation extends AppCompatActivity implements AsyncDele
                     JSONObject obj = data.getJSONObject("result");
                     String phno = obj.getString("formatted_phone_number");
                     Log.d("Phone_",phno);
-                    Toast.makeText(NearestPoliceStation.this,phno,Toast.LENGTH_LONG).show();
+                    Toast.makeText(NearestHospital.this,phno,Toast.LENGTH_LONG).show();
                     String phoneNumber = "tel:"+"123";
                     Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse(phoneNumber));
                     if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
@@ -226,7 +212,7 @@ public class NearestPoliceStation extends AppCompatActivity implements AsyncDele
                     startActivity(callIntent);
                 }
                 catch(Exception e){
-                    Toast.makeText(NearestPoliceStation.this,"Phone no. is not available. Dialing 100.",Toast.LENGTH_LONG).show();
+                    Toast.makeText(NearestHospital.this,"Phone no. is not available. Dialing 108.",Toast.LENGTH_LONG).show();
                     String phoneNumber = "tel:"+"321";
                     Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse(phoneNumber));
                     if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
@@ -240,7 +226,9 @@ public class NearestPoliceStation extends AppCompatActivity implements AsyncDele
             Log.d("data1",result);
         }
     }
-    class MyAsyncTask extends AsyncTask<Void,String,String>{
+
+    class MyAsyncTask extends AsyncTask<Void,String,String> {
+        MyAsyncTask2 myAsyncTask2;
         @Override
         protected String doInBackground(Void... voids) {
             BufferedReader reader = null;
@@ -272,11 +260,10 @@ public class NearestPoliceStation extends AppCompatActivity implements AsyncDele
         }
         @Override
         protected void onPreExecute() {
-            pDialog = new ProgressDialog(NearestPoliceStation.this);
+            pDialog = new ProgressDialog(NearestHospital.this);
             pDialog.setMessage("Please Wait...");
             pDialog.show();
         }
-
         @Override
         protected void onPostExecute(String result) {
             pDialog.dismiss();
@@ -286,110 +273,110 @@ public class NearestPoliceStation extends AppCompatActivity implements AsyncDele
                 try {
                     JSONObject data = new JSONObject(result);
                     JSONArray arr = data.getJSONArray("results");
-                    for (int j = 0; j < arr.length(); j++) {
+                    for(int j = 0 ; j < arr.length() ;j++){
                         JSONObject obj2 = arr.getJSONObject(j);
                         String name = obj2.getString("name");
                         String address = obj2.getString("vicinity");
                         String longitude = obj2.getJSONObject("geometry").getJSONObject("location").getString("lng");
                         String latitude = obj2.getJSONObject("geometry").getJSONObject("location").getString("lat");
                         String placeID = obj2.getString("place_id");
-                        PoliceStationAttr tempAttr = new PoliceStationAttr();
+                        HospitalAttr tempAttr = new HospitalAttr();
                         tempAttr.name = name;
                         tempAttr.address = address;
                         tempAttr.latitude = latitude;
                         tempAttr.longitude = longitude;
-                        mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(latitude), Double.parseDouble(longitude))).title(name));
+                        mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(latitude),Double.parseDouble(longitude))).title(name));
                         tempAttr.placeID = placeID;
-                        policeStation.add(tempAttr);
-                        myPoliceStationAdapter = new MyPoliceStationAdapter(NearestPoliceStation.this, 0, policeStation);
-                        policeStationList.setAdapter(myPoliceStationAdapter);
-                        /*policeStationList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                            @Override
-                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                                String latitude = policeStation.get(i).latitude;
-                                String longitude = policeStation.get(i).longitude;
-                                String name = policeStation.get(i).name;
-                                mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(latitude), Double.parseDouble(longitude))).title(name));
-                            }
-                        });*/
+                        hospital.add(tempAttr);
+                        myHospitalAdapter = new MyHospitalAdapter(NearestHospital.this, 0, hospital);
+                        hospitalList.setAdapter(myHospitalAdapter);
                         MyAsyncTask2 myAsyncTask2 = new MyAsyncTask2();
-                        myAsyncTask2.execute(latitude, longitude);
+                        myAsyncTask2.execute(latitude,longitude);
                     }
-             }catch(Exception e){
-             }
-            Log.d("check_data",result);
+                    //Toast.makeText(NearestHospital.this,"First ayncTask finished",Toast.LENGTH_SHORT).show();
+                }
+                catch(Exception e){
+                    Log.d("ErrorSQL","sqlerror");
+                }
+            }
+            Log.d("data1",result);
         }
     }
 
-        class MyAsyncTask2 extends AsyncTask<String,String,String> {
-            @Override
+    class MyAsyncTask2 extends AsyncTask<String,String,String> {
+        @Override
             protected void onPreExecute() {
             }
             protected String doInBackground(String... distanceCoordinates) {
-                googleDistanceUrl = new StringBuilder("https://maps.googleapis.com/maps/api/distancematrix/json?");
-                googleDistanceUrl.append("origins=" + mLatitude + "," + mLongitude);
-                googleDistanceUrl.append("&destinations=" + distanceCoordinates[0] + "," + distanceCoordinates[1]);
-                googleDistanceUrl.append("&key=" + "AIzaSyCCMmQ04uVMXxzvWUj1MiBKEqKbmwcroGc");
-                Log.d("newURL",googleDistanceUrl + "");
-                BufferedReader reader = null;
-                String result = null;
-                try{
-                    HttpURLConnection urlConnection = null;
-                    URL url = new URL(googleDistanceUrl.toString());
-                    urlConnection = (HttpURLConnection)url.openConnection();
-                    urlConnection.setRequestMethod("GET");
-                    urlConnection.connect();
-                    InputStream inputStream = urlConnection.getInputStream();
-                    if (inputStream == null) {
-                        return null;
-                    }
-                    reader = new BufferedReader(new InputStreamReader(inputStream));
-                    StringBuffer buffer = new StringBuffer();
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        buffer.append(line + "\n");
-                    }
-                    if (buffer.length() == 0) {
-                        return null;
-                    }
-                    result = buffer.toString();
-                    Log.d("BUFFER",buffer.toString());
-                }catch (Exception e){
+            googleDistanceUrl = new StringBuilder("https://maps.googleapis.com/maps/api/distancematrix/json?");
+            googleDistanceUrl.append("origins=" + mLatitude + "," + mLongitude);
+            googleDistanceUrl.append("&destinations=" + distanceCoordinates[0] + "," + distanceCoordinates[1]);
+            googleDistanceUrl.append("&key=" + "AIzaSyCCMmQ04uVMXxzvWUj1MiBKEqKbmwcroGc");
+            Log.d("newURL",googleDistanceUrl + "");
+            BufferedReader reader = null;
+            String result = null;
+            try{
+                HttpURLConnection urlConnection = null;
+                URL url = new URL(googleDistanceUrl.toString());
+                urlConnection = (HttpURLConnection)url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+                InputStream inputStream = urlConnection.getInputStream();
+                if (inputStream == null) {
+                    return null;
                 }
-                return result;
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+                StringBuffer buffer = new StringBuffer();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line + "\n");
+                }
+                if (buffer.length() == 0) {
+                    return null;
+                }
+                result = buffer.toString();
+                Log.d("BUFFER",buffer.toString());
+            }catch (Exception e){
             }
-            @Override
-            protected void onPostExecute(String result) {
-                if(result == null)
-                    result = " ";
-                try{
-                    JSONObject obj1 = new JSONObject(result);
-                    JSONArray rows = obj1.getJSONArray("rows");
-                    JSONObject obj2 = rows.getJSONObject(0);
-                    JSONArray elements = obj2.getJSONArray("elements");
-                    JSONObject obj3 = elements.getJSONObject(0);
-                    JSONObject obj4 = obj3.getJSONObject("distance");
-                    String text = obj4.getString("text");
-                    Log.d("text_",text);
-                    curDistance = text;
-                    distance.add(curDistance);
-                    //if(distance.size() == 12){
-                        for(int i = 0 ; i < distance.size();i++){
-                            Log.d("pdistance_",distance.get(i));
-                            policeStation.get(i).distance = distance.get(i)+"";
-                        }
-                        asyncComplete(true);
-                        updateList();
-                    //}
+            return result;
+        }
+        @Override
+        protected void onPostExecute(String result) {
+            if(result == null)
+                result = " ";
+            try{
+                JSONObject obj1 = new JSONObject(result);
+                JSONArray rows = obj1.getJSONArray("rows");
+                JSONObject obj2 = rows.getJSONObject(0);
+                JSONArray elements = obj2.getJSONArray("elements");
+                JSONObject obj3 = elements.getJSONObject(0);
+                JSONObject obj4 = obj3.getJSONObject("distance");
+                String text = obj4.getString("text");
+                curDistance = text;
+                distance.add(curDistance);
+              //  if(distance.size() == 20){
+                    for(int i = 0 ; i < distance.size();i++){
+                        Log.d("distance_",distance.get(i));
+                        hospital.get(i).distance = distance.get(i)+"";
+                    }
+                    //Toast.makeText(NearestHospital.this,"done",Toast.LENGTH_LONG).show();
+                    AllDistanceFound = true;
                     asyncComplete(true);
-                }
-                catch(Exception e){
-                    Log.d("SQLError3","SQLerror3");
-                }
+                    updateList();
+               // }
+                asyncComplete(true);
+                /*ListView hospitalListUpd = (ListView) findViewById(R.id.hospitalList);
+                for (int i = 0; i < hospital.size(); i++) {
+                    TextView placeDistance = (TextView) hospitalListUpd.findViewById(R.id.placeDistance);
+                    placeDistance.setText(distance.get(i));
+                }*/
+                //Toast.makeText(NearestHospital.this,curDistance,Toast.LENGTH_LONG).show();
+            }
+            catch(Exception e){
+                Log.d("SQLError2","SQLerror2");
             }
         }
-}
-
+    }
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == 1) {
@@ -398,24 +385,17 @@ public class NearestPoliceStation extends AppCompatActivity implements AsyncDele
                     grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                         == PackageManager.PERMISSION_GRANTED) {
-                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME, MIN_DISTANCE, this); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
-                    mMap.addMarker(new MarkerOptions().position(new LatLng(mLatitude, mLongitude)).title("You are here"));
-                    //mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-                    mMap.getUiSettings().setCompassEnabled(true);
                     mMap.setMyLocationEnabled(true);
-                    getData("police");
                 }
             } else {
                 Toast.makeText(this,"Permission denied",Toast.LENGTH_LONG).show();
             }
         }
     }
-
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Toast.makeText(this,"Check your internet connection",Toast.LENGTH_LONG).show();
     }
-
     @Override
     public void onLocationChanged(Location location) {
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
@@ -444,32 +424,33 @@ public class NearestPoliceStation extends AppCompatActivity implements AsyncDele
     }
 
 
-    class MyPoliceStationAdapter extends ArrayAdapter<PoliceStationAttr> {
+    class MyHospitalAdapter extends ArrayAdapter<HospitalAttr> {
         Context context;
-        List<PoliceStationAttr> policeStation;
+        List<HospitalAttr> hospital;
         LayoutInflater mInflater;
 
-        public MyPoliceStationAdapter(Context context, int resource, List<PoliceStationAttr> objects) {
+        public MyHospitalAdapter(Context context, int resource, List<HospitalAttr> objects) {
             super(context, resource, objects);
             this.context = context;
-            this.policeStation = objects;
+            this.hospital = objects;
             mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
-            if(convertView == null)
-            {
+            //return super.getView(position, convertView, parent);
+            if(convertView == null) {
                 convertView = mInflater.inflate(R.layout.custom_listview, parent, false);
             }
             TextView placeName = (TextView) convertView.findViewById(R.id.placeName);
+            //TextView placeAddress = (TextView) convertView.findViewById(R.id.placeAddress);
             ImageView placePhoto = (ImageView) convertView.findViewById(R.id.placePhoto);
             TextView placeDistance = (TextView) convertView.findViewById(R.id.placeDistance);
             ImageButton callPlace = (ImageButton) convertView.findViewById(R.id.call_place);
             callPlace.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    final String placeID = policeStation.get(position).placeID;
+                    final String placeID = hospital.get(position).placeID;
                     MyAsyncTask3 myAsyncTask3 = new MyAsyncTask3();
                     myAsyncTask3.execute(placeID);
                 }
@@ -479,9 +460,9 @@ public class NearestPoliceStation extends AppCompatActivity implements AsyncDele
             showMarker.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    String latitude = policeStation.get(position).latitude;
-                    String longitude = policeStation.get(position).longitude;
-                    String name = policeStation.get(position).name;
+                    String latitude = hospital.get(position).latitude;
+                    String longitude = hospital.get(position).longitude;
+                    String name = hospital.get(position).name;
                     Marker marker = mMap.addMarker(new MarkerOptions()
                             .position(new LatLng(
                                     Double.parseDouble(latitude),
@@ -503,13 +484,13 @@ public class NearestPoliceStation extends AppCompatActivity implements AsyncDele
                 }
             });
 
-            placeDistance.setText(policeStation.get(position).distance);
+            placeDistance.setText(hospital.get(position).distance);
             //placeDistance.setText(nh.distance.get(position));
-            placePhoto.setImageResource(R.drawable.police_photo);
-            placeName.setText(policeStation.get(position).name);
-            Log.d("name_",policeStation.get(position).name);
+            placePhoto.setImageResource(R.drawable.medical_photo);
+            placeName.setText(hospital.get(position).name);
+            //placeAddress.setText(hospital.get(position).address);
+            Log.d("name_",hospital.get(position).name);
             return convertView;
         }
     }
 }
-

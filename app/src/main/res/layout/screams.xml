@@ -2,36 +2,37 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
-
+    android:orientation="vertical"
+    android:background="@android:color/white">
     <include
         android:id="@+id/mytoolbar2"
         layout="@layout/toolbar"></include>
 
-    <Button
+    <ImageView
         android:id="@+id/maleScream"
-        android:layout_width="103dp"
-        android:layout_height="106dp"
-        android:text="Male Scream"
+        android:layout_width="123dp"
+        android:layout_height="126dp"
+        android:src="@drawable/male_help"
         android:layout_marginTop="30dp"
-        android:layout_marginLeft="140dp"/>
-
-    <Button
-        android:id="@+id/femaleScream"
-        android:layout_width="103dp"
-        android:layout_height="106dp"
-        android:layout_marginTop="60dp"
-        android:layout_marginLeft="140dp"
-        android:text="Female Scream"
+        android:layout_gravity="center_horizontal"
         />
 
-    <Button
+    <ImageView
+        android:id="@+id/femaleScream"
+        android:layout_width="123dp"
+        android:layout_height="126dp"
+        android:layout_marginTop="30dp"
+        android:layout_gravity="center_horizontal"
+        android:src="@drawable/female_help"
+        />
+
+    <ImageView
         android:id="@+id/policeSiren"
-        android:layout_width="103dp"
-        android:layout_height="106dp"
-        android:layout_marginTop="60dp"
-        android:layout_marginLeft="140dp"
-        android:text="Police Siren"
+        android:layout_width="133dp"
+        android:layout_height="126dp"
+        android:layout_marginTop="30dp"
+        android:layout_gravity="center_horizontal"
+        android:src="@drawable/police_siren_help"
         />
 
 </LinearLayout>
