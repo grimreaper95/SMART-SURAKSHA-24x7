@@ -5,6 +5,8 @@
       <module fileurl="file://$PROJECT_DIR$/SMARTSURAKSHA24x7.iml" filepath="$PROJECT_DIR$/SMARTSURAKSHA24x7.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/libstreaming/libstreaming.iml" filepath="$PROJECT_DIR$/libstreaming/libstreaming.iml" />
+      <module fileurl="file://$PROJECT_DIR$/plivoendpoint/plivoendpoint.iml" filepath="$PROJECT_DIR$/plivoendpoint/plivoendpoint.iml" />
+      <module fileurl="file://$PROJECT_DIR$/plivoendpointjar/plivoendpointjar.iml" filepath="$PROJECT_DIR$/plivoendpointjar/plivoendpointjar.iml" />
     </modules>
   </component>
 </project>

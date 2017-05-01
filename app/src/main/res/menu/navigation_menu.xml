@@ -14,12 +14,6 @@
             >
         </item>
         <item
-            android:id="@+id/settings"
-            android:title="Settings"
-            android:icon="@drawable/settings"
-            >
-        </item>
-        <item
             android:id="@+id/selfDefenseTechniques"
             android:title="Self Defense Techniques"
             android:icon="@drawable/self_defense"

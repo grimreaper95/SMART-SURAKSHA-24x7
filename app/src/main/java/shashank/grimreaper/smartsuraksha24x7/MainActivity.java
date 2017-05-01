@@ -1,5 +1,6 @@
 package shashank.grimreaper.smartsuraksha24x7;
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -24,22 +25,44 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
+import android.telephony.TelephonyManager;
 import android.text.style.LocaleSpan;
+import android.util.Base64;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.model.LatLng;
+import com.plivo.endpoint.Endpoint;
+import com.plivo.endpoint.EventListener;
+import com.plivo.endpoint.Incoming;
+import com.plivo.endpoint.Outgoing;
+
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.net.URI;
 import java.util.ArrayList;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
-public class MainActivity extends AppCompatActivity implements LocationListener{
+public class MainActivity extends AppCompatActivity implements LocationListener{//},EventListener{
     DrawerLayout dlayout;
     ActionBarDrawerToggle toggle;
     ImageView policeStation,hospital ;
-    ImageView panicButton ,scream,camera;
+    ImageView panicButton ,scream,camera,fakecall;
     protected LocationManager locationManager;
     Double latitude,longitude;
     SQLiteDatabase db;
@@ -47,6 +70,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
     SharedPreferences.Editor editor;
     String primaryContactName,primaryContactPhno;
     SmsManager smsManager;
+    public final static String PLIVO_USERNAME = "shashank95";
+    public final static String PLIVO_PASSWORD = "shashank95";
+    //public final static String EXTRA_MESSAGE = "com.plivo.example.MESSAGE";
+    //Endpoint endpoint = Endpoint.newInstance(true, this);
+    //Outgoing outgoing = new Outgoing(endpoint);
+
+    //public static String PHONE_NUMBER = "";
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -56,6 +87,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setHomeButtonEnabled(true);
         }
+
+        //Log.v("PlivoOutbound", "Trying to log in");
+        //endpoint.login(PLIVO_USERNAME,PLIVO_PASSWORD);
+
         sp = PreferenceManager.getDefaultSharedPreferences(this);
         editor = sp.edit();
 
@@ -87,6 +122,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         policeStation = (ImageView)findViewById(R.id.policeStation);
         hospital = (ImageView)findViewById(R.id.hospital);
         scream = (ImageView)findViewById(R.id.scream);
+        fakecall = (ImageView)findViewById(R.id.fakecall);
+
+
         policeStation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -102,7 +140,50 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         });
 
 
+        fakecall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //String url = "https://api.plivo.com/v1/Account/MANZLLZJFKMDCYZDI5ZM/Call/";
+                String url = "https://api.voice2phone.com/call";
+                //Log.d("plivo",url);
+                com.android.volley.RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
+                StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+                        new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                Log.d("plivo_response", response);
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Log.d("plivo error", error.getMessage() + " ");
+                            }
+                        }
+                ) {
+                    @Override
+                    protected Map<String, String> getParams() {
+                        Map<String, String> params = new HashMap<>();
+                        params.put("from","919199095326");
+                        params.put("to","918789821093");
+                        params.put("answer_url","54.214.95.24/sentcall.php");
+                        return params;
+                    }
 
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String> headers = new HashMap<>();
+                        //String credentials = "MANZLLZJFKMDCYZDI5ZM:MTVjMzYwMTdhMzk5YmM5MDk5ZjRlMTkyMzU1MDk3";
+                        String credentials = ":application/json";
+                        String auth = "Basic " + Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
+                        headers.put("Content-Type", "application/json");
+                        headers.put("Authorization", auth);
+                        return headers;
+                    }
+                };
+                queue.add(postRequest);
+            }
+        });
 
 
         panicButton = (ImageView)findViewById(R.id.panicButton);
@@ -140,7 +221,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                         return;
                     }
                 }
-
                 String phoneNumber = "tel:"+primaryContactPhno;
                 Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse(phoneNumber));
                 if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
@@ -149,7 +229,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                 }
                 Log.d("Call", "success");
                 startActivity(callIntent);
-
                 //call primary emergency contact
                 /*smsManager.sendTextMessage("+918299807010", null, smsBody.toString(), null, null);
                 smsManager.sendTextMessage("+919771661256", null, smsBody.toString(), null, null);*/
@@ -167,25 +246,28 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
             public void onClick(View view) {
                 //primaryContactName = sp.getString(primaryContactName,"dummy");
                 //primaryContactPhno = sp.getString(primaryContactPhno,"123");
-                if(primaryContactName.equals("dummy")){
+                /*if(primaryContactName.equals("dummy")){
                     Toast.makeText(MainActivity.this,"No primary emergency contact present to send live streaming...",Toast.LENGTH_LONG).show();
                 }
-                else {
+                else {*/
                     Toast.makeText(MainActivity.this,"Sending SMS",Toast.LENGTH_LONG).show();
                     smsManager = SmsManager.getDefault();
                     StringBuffer smsBody = new StringBuffer();
+                    TelephonyManager mngr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+                    String IMEI = mngr.getDeviceId();
+                    Log.d("IMEI",IMEI);
                     String latitude = sp.getString("latitude", "23.412");
                     String longitude = sp.getString("longitude", "85.441");
                     String tempUrl = "http://maps.google.com/?q=" + latitude + "," + longitude;
                     smsBody.append("Please help me. I am at this location : " + tempUrl);
                     smsBody.append(" Please watch my current situation using this live streaming link: ");
-                    smsBody.append("www.smartsuraksha24x7.com");
+                    smsBody.append("www.smartsuraksha24x7.com/");
                     Log.d("primaryNo",smsBody.toString());
                     ArrayList<String> parts = smsManager.divideMessage(smsBody.toString());
                     smsManager.sendMultipartTextMessage(primaryContactPhno, null, parts, null, null);
                     Intent intent = new Intent(MainActivity.this, LiveStreaming.class);
                     startActivity(intent);
-                }
+                //}
             }
         });
 
@@ -200,6 +282,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                 startActivity(intent);
             }
         });
+
 
 
 
@@ -227,14 +310,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                 else if(id == R.id.selfDefenseTechniques){
                     Intent intent = new Intent(MainActivity.this,SelfDefenseTechniques.class);
                     startActivity(intent);
-                }
-                else if(id == R.id.settings){
-                    //    backgrnd_frag_is_home = false;
-                    /*
-                    FragmentTransaction ft = manager.beginTransaction();
-                    ft.replace(R.id.dummy,sett_frag);
-                    ft.commit();
-                    */
                 }
                 dlayout.closeDrawer(GravityCompat.START);
                 return true;
@@ -279,6 +354,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         //Toast.makeText(getApplicationContext(),latitude +" " + longitude,Toast.LENGTH_LONG).show();
     }
 
+    /*public void callNow() {
+        // Log into plivo cloud
+        outgoing = endpoint.createOutgoingCall();
+        Log.v("PlivoOutbound", "Create outbound call object");
+        PHONE_NUMBER = "+919199095326";
+        Log.v("PlivoOutbound", PHONE_NUMBER);
+        outgoing.call(PHONE_NUMBER);
+    }*/
+
     @Override
     public void onStatusChanged(String s, int i, Bundle bundle) {
 
@@ -313,4 +397,64 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                 // permissions this app might request
             }
     }
+
+    /*@Override
+    public void onLogin() {
+
+    }
+
+    @Override
+    public void onLogout() {
+
+    }
+
+    @Override
+    public void onLoginFailed() {
+
+    }
+
+    @Override
+    public void onIncomingDigitNotification(String s) {
+
+    }
+
+    @Override
+    public void onIncomingCall(Incoming incoming) {
+
+    }
+
+    @Override
+    public void onIncomingCallHangup(Incoming incoming) {
+
+    }
+
+    @Override
+    public void onIncomingCallRejected(Incoming incoming) {
+
+    }
+
+    @Override
+    public void onOutgoingCall(Outgoing outgoing) {
+
+    }
+
+    @Override
+    public void onOutgoingCallAnswered(Outgoing outgoing) {
+
+    }
+
+    @Override
+    public void onOutgoingCallRejected(Outgoing outgoing) {
+
+    }
+
+    @Override
+    public void onOutgoingCallHangup(Outgoing outgoing) {
+
+    }
+
+    @Override
+    public void onOutgoingCallInvalid(Outgoing outgoing) {
+
+    }*/
 }

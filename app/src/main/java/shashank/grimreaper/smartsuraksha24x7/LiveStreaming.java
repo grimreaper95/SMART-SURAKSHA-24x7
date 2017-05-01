@@ -1,23 +1,27 @@
 package shashank.grimreaper.smartsuraksha24x7;
 
-        import android.content.DialogInterface;
-        import android.support.annotation.Nullable;
-        import android.support.v7.app.AlertDialog;
-        import android.support.v7.app.AppCompatActivity;
-        import android.os.Bundle;
-        import android.support.v7.widget.Toolbar;
-        import android.view.SurfaceHolder;
-        import android.view.Window;
-        import android.view.WindowManager;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-        import net.majorkernelpanic.streaming.Session;
-        import net.majorkernelpanic.streaming.SessionBuilder;
-        import net.majorkernelpanic.streaming.audio.AudioQuality;
-        import net.majorkernelpanic.streaming.gl.SurfaceView;
-        import net.majorkernelpanic.streaming.rtsp.RtspClient;
-
-        import java.util.regex.Matcher;
-        import java.util.regex.Pattern;
+import net.majorkernelpanic.streaming.Session;
+import net.majorkernelpanic.streaming.SessionBuilder;
+import net.majorkernelpanic.streaming.audio.AudioQuality;
+import net.majorkernelpanic.streaming.gl.SurfaceView;
+import net.majorkernelpanic.streaming.rtsp.RtspClient;
+import net.majorkernelpanic.streaming.video.VideoQuality;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.telephony.TelephonyManager;
+import android.view.Menu;
+import android.view.SurfaceHolder;
+import android.view.Window;
+import android.view.WindowManager;
 
 /**
  * Created by Shashank on 08-02-2017.
@@ -25,7 +29,6 @@ package shashank.grimreaper.smartsuraksha24x7;
 
 public class LiveStreaming extends AppCompatActivity implements RtspClient.Callback,
         Session.Callback, SurfaceHolder.Callback {
-    public final static String TAG = LiveStreaming.class.getSimpleName();
     // surfaceview
     private static SurfaceView mSurfaceView;
 
@@ -37,7 +40,6 @@ public class LiveStreaming extends AppCompatActivity implements RtspClient.Callb
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         setContentView(R.layout.live_streaming);
@@ -169,6 +171,11 @@ public class LiveStreaming extends AppCompatActivity implements RtspClient.Callb
         port = m.group(2);
         path = m.group(3);
 
+
+        //TelephonyManager mngr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        //path = mngr.getDeviceId();
+
+
         mClient.setCredentials(AppConfig.PUBLISHER_USERNAME,
                 AppConfig.PUBLISHER_PASSWORD);
         mClient.setServerAddress(ip, Integer.parseInt(port));
@@ -189,6 +196,7 @@ public class LiveStreaming extends AppCompatActivity implements RtspClient.Callb
             mClient.stopStream();
         }
     }
+
     private void alertError(final String msg) {
         final String error = (msg == null) ? "Unknown error: " : msg;
         AlertDialog.Builder builder = new AlertDialog.Builder(LiveStreaming.this);
@@ -200,7 +208,6 @@ public class LiveStreaming extends AppCompatActivity implements RtspClient.Callb
         AlertDialog dialog = builder.create();
         dialog.show();
     }
-
 
 
 

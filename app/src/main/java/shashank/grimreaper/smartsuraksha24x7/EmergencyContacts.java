@@ -140,6 +140,7 @@ public class EmergencyContacts extends AppCompatActivity {
                 // Set the CAB title according to total checked items
                 actionMode.setTitle(checkedCount + " Selected");
                 // Calls toggleSelection method from ListViewAdapter Class
+
                 myContactsAdapter.toggleSelection(i);
 
             }
@@ -180,10 +181,6 @@ public class EmergencyContacts extends AppCompatActivity {
                                     if  (selected.valueAt(i)) {
                                         Contact selecteditem = myContactsAdapter.getItem(selected.keyAt(i));
                                         //Remove  selected items following the ids
-
-                                        myContactsAdapter.remove(selecteditem);
-                                        myContactsAdapter.notifyDataSetChanged();
-
                                         db.delete("EmergencyContacts","Name=?",new String[]{selecteditem.name});
                                         if(primaryEmergencyContactName.equals(selecteditem.name)){
                                             if(primaryEmergencyContactPhno.equals(selecteditem.phno)) {
@@ -193,6 +190,8 @@ public class EmergencyContacts extends AppCompatActivity {
                                                 editor.commit();
                                             }
                                         }
+                                        myContactsAdapter.remove(selecteditem);
+                                        myContactsAdapter.notifyDataSetChanged();
                                     }
                                 }
                                 actionMode.finish();
@@ -217,14 +216,17 @@ public class EmergencyContacts extends AppCompatActivity {
                         actionMode.setTitle(checkedCount  + "  Selected");
                         return true;
                     default:
-                        return false;
+                        // If item  is already selected or checked then remove or
+                        // unchecked  and again select all
+                        myContactsAdapter.removeSelection();
+                        return true;
                 }
             }
 
             @Override
             public void onDestroyActionMode(ActionMode actionMode) {
-
             }
+
         });
 
 
@@ -271,7 +273,7 @@ public class EmergencyContacts extends AppCompatActivity {
                 int cnt = 0 ;
                     while (pCur.moveToNext()) {
                         String phone = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        Toast.makeText(this, name + " " + phone + " added as an emergency contact", Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, name + " " + phone + " added as an emergency contact", Toast.LENGTH_SHORT).show();
                         ContentValues values1 = new ContentValues();
                         values1.put("Name", name);
                         values1.put("Number", phone);
@@ -315,16 +317,24 @@ public class EmergencyContacts extends AppCompatActivity {
             }
         }
         else{
-
-            Toast.makeText(this,"No emergency contacts present",Toast.LENGTH_LONG).show();
+            Toast.makeText(this,"No emergency contacts present",Toast.LENGTH_SHORT).show();
             contactList.clear();
         }
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        //myContactsAdapter.clear();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Toast.makeText(this,"Single tap a contact to make it your primary emergency contact",Toast.LENGTH_LONG).show();
+        Toast.makeText(this,"Single tap a contact to make it your primary emergency contact",Toast.LENGTH_SHORT).show();
     }
+
+
 }
 

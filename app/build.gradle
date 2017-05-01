@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 24
-    buildToolsVersion "23.0.3"
+    buildToolsVersion '25.0.0'
     defaultConfig {
         applicationId "shashank.grimreaper.smartsuraksha24x7"
         minSdkVersion 19
@@ -24,6 +24,11 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+    android {
+        configurations.all {
+            resolutionStrategy.force 'com.google.code.findbugs:jsr305:1.3.9'
+        }
+    }
     compile 'com.android.support:appcompat-v7:24.2.1'
     testCompile 'junit:junit:4.12'
     compile project(':libstreaming')
@@ -31,5 +36,14 @@ dependencies {
     compile 'com.google.android.gms:play-services-maps:9.2.0'
     compile 'com.google.android.gms:play-services-places:9.2.0'
     compile 'com.mcxiaoke.volley:library-aar:1.0.0'
-
+    compile 'me.neavo:vitamio:4.2.2'
+    compile 'com.mcxiaoke.volley:library-aar:1.0.0'
+    //compile 'com.twilio:client-android:1.2.18'
+    //compile 'com.google.apis:google-api-services-youtube:v3-rev183-1.22.0'
+    //compile 'com.google.android.gms:play-services-auth:9.8.0'
+    //apply plugin: 'com.android.application'
+    //apply plugin: 'com.google.gms.google-services'
+    //compile 'com.google.apis : google-api-services-youtube : v3-rev183-1.21.0'
+    //compile 'com.google.apis:google-api-services-youtube:v3-rev183-1+'
+    //   compile files('libs/plivoendpoint.jar')
 }

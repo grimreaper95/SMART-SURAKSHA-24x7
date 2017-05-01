@@ -11,6 +11,8 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/libstreaming" />
+            <option value="$PROJECT_DIR$/plivoendpoint" />
+            <option value="$PROJECT_DIR$/plivoendpointjar" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
