@@ -70,8 +70,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
     SharedPreferences.Editor editor;
     String primaryContactName,primaryContactPhno;
     SmsManager smsManager;
-    public final static String PLIVO_USERNAME = "shashank95";
-    public final static String PLIVO_PASSWORD = "shashank95";
+    //public final static String PLIVO_USERNAME = "shashank95";
+    //public final static String PLIVO_PASSWORD = "shashank95";
     //public final static String EXTRA_MESSAGE = "com.plivo.example.MESSAGE";
     //Endpoint endpoint = Endpoint.newInstance(true, this);
     //Outgoing outgoing = new Outgoing(endpoint);
@@ -144,41 +144,40 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
             @Override
             public void onClick(View view) {
                 //String url = "https://api.plivo.com/v1/Account/MANZLLZJFKMDCYZDI5ZM/Call/";
-                String url = "https://api.voice2phone.com/call";
+                String url = "https://twilix.exotel.in/v1/Accounts/bitmesra2/Calls/connect";
                 //Log.d("plivo",url);
                 com.android.volley.RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
                 StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                         new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
-                                Log.d("plivo_response", response);
+                                Log.d("exotel response", response);
                             }
                         },
                         new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                Log.d("plivo error", error.getMessage() + " ");
+                                Log.d("exotel error", error.getMessage() + " ");
                             }
                         }
                 ) {
                     @Override
                     protected Map<String, String> getParams() {
                         Map<String, String> params = new HashMap<>();
-                        params.put("from","919199095326");
-                        params.put("to","918789821093");
-                        params.put("answer_url","54.214.95.24/sentcall.php");
+                        params.put("From","09199095326");
+                        params.put("CallerId","08030752894");
+                        params.put("CallType","trans");
+                        params.put("Url","http://my.exotel.in/exoml/start/131868");
                         return params;
                     }
 
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
-                        Map<String, String> headers = new HashMap<>();
-                        //String credentials = "MANZLLZJFKMDCYZDI5ZM:MTVjMzYwMTdhMzk5YmM5MDk5ZjRlMTkyMzU1MDk3";
-                        String credentials = ":application/json";
-                        String auth = "Basic " + Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
-                        headers.put("Content-Type", "application/json");
-                        headers.put("Authorization", auth);
-                        return headers;
+                        HashMap<String, String> params = new HashMap<String, String>();
+                        String creds = String.format("%s:%s","bitmesra2","2a6ad851de84914f6a09004a1591c3961df1ecf6");
+                        String auth = "Basic " + Base64.encodeToString(creds.getBytes(), Base64.DEFAULT);
+                        params.put("Authorization", auth);
+                        return params;
                     }
                 };
                 queue.add(postRequest);
@@ -259,12 +258,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                     String latitude = sp.getString("latitude", "23.412");
                     String longitude = sp.getString("longitude", "85.441");
                     String tempUrl = "http://maps.google.com/?q=" + latitude + "," + longitude;
-                    smsBody.append("Please help me. I am at this location : " + tempUrl);
+
+                    /*smsBody.append("Please help me. I am at this location : " + tempUrl);
                     smsBody.append(" Please watch my current situation using this live streaming link: ");
-                    smsBody.append("www.smartsuraksha24x7.com/");
+                    smsBody.append("www.smartsuraksha24x7.com");*/
                     Log.d("primaryNo",smsBody.toString());
                     ArrayList<String> parts = smsManager.divideMessage(smsBody.toString());
                     smsManager.sendMultipartTextMessage(primaryContactPhno, null, parts, null, null);
+
                     Intent intent = new Intent(MainActivity.this, LiveStreaming.class);
                     startActivity(intent);
                 //}

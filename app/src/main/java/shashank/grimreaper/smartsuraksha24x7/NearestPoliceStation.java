@@ -115,6 +115,7 @@ public class NearestPoliceStation extends AppCompatActivity implements AsyncDele
         }
 
         else{
+
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME, MIN_DISTANCE, this); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
             googleMap.addMarker(new MarkerOptions().position(new LatLng(mLatitude, mLongitude)).title("You are here"));
             //googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
@@ -427,7 +428,7 @@ public class NearestPoliceStation extends AppCompatActivity implements AsyncDele
         editor.putString("longitude",mLongitude+"");
         editor.commit();
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(12));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(10));
         String longitude = "Longitude: " + location.getLongitude();
         Log.d("Longitude", longitude);
         String latitude = "Latitude: " + location.getLatitude();
