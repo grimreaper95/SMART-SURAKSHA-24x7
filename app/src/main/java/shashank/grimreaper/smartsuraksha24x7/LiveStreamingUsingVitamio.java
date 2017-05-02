@@ -22,7 +22,7 @@ import io.vov.vitamio.widget.MediaController;
  */
 
 public class LiveStreamingUsingVitamio extends AppCompatActivity {
-    private String path="rtmp://172.31.18.221:1935/live/android_test";
+    private String path="rtmp://192.168.109.241:1935/live/android_test";
     //private String path="rtmp://192.168.85.119/live/";
     private io.vov.vitamio.widget.VideoView mVideoView;
     @Override

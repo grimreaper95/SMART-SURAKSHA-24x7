@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
     SharedPreferences.Editor editor;
     String primaryContactName,primaryContactPhno;
     SmsManager smsManager;
+    String number;
     //public final static String PLIVO_USERNAME = "shashank95";
     //public final static String PLIVO_PASSWORD = "shashank95";
     //public final static String EXTRA_MESSAGE = "com.plivo.example.MESSAGE";
@@ -90,6 +91,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
 
         //Log.v("PlivoOutbound", "Trying to log in");
         //endpoint.login(PLIVO_USERNAME,PLIVO_PASSWORD);
+
+        startService(new Intent(this,UpdateService.class));
 
         sp = PreferenceManager.getDefaultSharedPreferences(this);
         editor = sp.edit();
@@ -119,6 +122,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
             }
         }
 
+
         policeStation = (ImageView)findViewById(R.id.policeStation);
         hospital = (ImageView)findViewById(R.id.hospital);
         scream = (ImageView)findViewById(R.id.scream);
@@ -143,9 +147,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         fakecall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //String url = "https://api.plivo.com/v1/Account/MANZLLZJFKMDCYZDI5ZM/Call/";
                 String url = "https://twilix.exotel.in/v1/Accounts/bitmesra2/Calls/connect";
-                //Log.d("plivo",url);
                 com.android.volley.RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
                 StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                         new Response.Listener<String>() {
@@ -259,9 +261,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                     String longitude = sp.getString("longitude", "85.441");
                     String tempUrl = "http://maps.google.com/?q=" + latitude + "," + longitude;
 
-                    /*smsBody.append("Please help me. I am at this location : " + tempUrl);
+                    smsBody.append("Please help me. I am at this location : " + tempUrl);
                     smsBody.append(" Please watch my current situation using this live streaming link: ");
-                    smsBody.append("www.smartsuraksha24x7.com");*/
+                    smsBody.append("www.smartsuraksha24x7.com");
                     Log.d("primaryNo",smsBody.toString());
                     ArrayList<String> parts = smsManager.divideMessage(smsBody.toString());
                     smsManager.sendMultipartTextMessage(primaryContactPhno, null, parts, null, null);

@@ -15,83 +15,87 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/eyes"
+                />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="WALK CONFIDENTLY"
+                android:text="Eyes:"
                 android:textSize="24sp"
                 android:layout_margin="10dp"
                 android:textColor="#000000"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="The first rule when it comes to safety on the street is to walk confidently. Psychiatrists have found that speaking the right body language such as looking alert and confident will make attackers think twice about approaching you.
-                              The truth is that most attackers will look for someone who is easily frightened and appears to be an easy target. 'One of the best tricks is to walk confidently,' says self defence expert John Davies of Basis Training UK, an organisation that teaches self defence classes. 'Get into the habit of walking positively with your head tall, rather than walking with slumped shoulders and looking at the floor.'"
+                android:text="Gouging, poking, or scratching the attacker’s eyes with your fingers or knuckles would be effective, as you can imagine. Besides causing a lot of pain, this should also make your escape easier by at least temporarily interfering with his vision"
                 android:textSize="18sp"
                 android:layout_margin="10dp"
                 />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/nose"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="SCRAPE YOUR HEEL DOWN THE SIDE OF HIS SHIN"
+                android:text="Nose:"
                 android:textSize="24sp"
                 android:layout_margin="10dp"
                 android:textColor="#000000"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="If you are approached from behind,
-                              one of the most effective ways to throw off your attacker is to run your heel down the front of their shin - the prominent bone found in the lower part of the leg. This is a fine bone and even if your attacker is well built, this bone tends to stick out. Simply lift up your heel and scrape your heel down the front of your assailant's shin bone as hard as possible. Most footwear is capable of causing pain and damage, but heels are even better."
+                android:text="If the attacker is close in front of you, use the heel of your palm to strike up under his nose; throw the whole weight of your body into the move to cause the most pain and force him to loosen his grip on you. If he’s behind you, you can strike his nose (from the side or front) with your elbow. Either way, aim for the nasal bones."
                 android:textSize="18sp"
                 android:layout_margin="10dp"
                 />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/neck"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="AIM FOR THE NOSE"
+                android:text="Neck:"
                 android:textSize="24sp"
                 android:layout_margin="10dp"
                 android:textColor="#000000"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="If your attacker grabs you from behind, another tactic is to throw your head back as far as possible and try to head butt your assailant's nose. You should try to jerk your head back - being careful not to jar your own neck - and aim for the bridge of his nose. The theory is that your attacker releases you in order to grab hold of his painful nose - giving you vital seconds to run away."
+                android:text="The side of the neck is a bigger target, where both the carotid artery and jugular vein are located. You could possibly temporarily stun your attacker with a knife hand strike (all fingers held straight and tightly together, with thumb tucked and slightly bent at the knuckle) at the side of the neck. (For even more injury, you could thrust your elbow into your assailant’s throat while pitching the weight of your body forward."
                 android:textSize="18sp"
                 android:layout_margin="10dp"
                 />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/knee"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="GO FOR THE EYE"
+                android:text="Knee:"
                 android:textSize="24sp"
                 android:layout_margin="10dp"
                 android:textColor="#000000"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="If your attacker is heading towards you, grab his ear with your fingers and press your thumb firmly along the whole of his eye. Use a pushing action, press your thumb back into his skull. Holding your attacker's ear means your thumb will automatically drop down to his eye level. Apart from being more painful than simply poking his eye, if your assailant turns his head, your hand will move with it. With any luck, your attacker will jerk backwards in an attempt to cover his eye, giving you precious time to flee."
+                android:text="Knee is an ideal self-defense target, vulnerable from every angle and easily kicked without risk of your foot being grabbed. Kick the side of the knee to cause injury or partially incapacitate your attacker. Kicking the front of the knee may cause more injury but is less likely to result in imbalance."
                 android:textSize="18sp"
                 android:layout_margin="10dp"
                 />
+            <ImageView
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:src="@drawable/keys"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="AIM FOR THE THROAT"
-                android:textSize="24sp"
-                android:layout_margin="10dp"
-                android:textColor="#000000"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Self defence experts also recommend poking your finger into your attacker's windpipe - the part of the air passage found below the Adam's apple. Try to press your finger - rather than your thumb - into the space between the Adam's apple and the top of the breastbone as hard as possible. Pressing your finger into this part of the body is easier to do. This has the effect of closing the air passage making it difficult for your attacker to breathe. The idea is that he will clasp his throat in order to breathe again, allowing you the chance to escape."
-                android:textSize="18sp"
-                android:layout_margin="10dp"
-                />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="KEEP YOUR KEYS HANDY"
+                android:text="Keep your keys handy:"
                 android:textSize="24sp"
                 android:layout_margin="10dp"
                 android:textColor="#000000"/>

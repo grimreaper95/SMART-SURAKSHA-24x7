@@ -20,6 +20,7 @@
 
 
 
+
     <uses-permission android:name="android.permission.CAMERA" />
 
     <uses-feature
@@ -99,9 +100,12 @@
 
 
         <receiver android:name=".IncomingSMS">
-            <intent-filter android:priority="99999">
+            <intent-filter android:priority="9999">
                 <action android:name="android.provider.telephony.SMS_RECIEVED"/>
             </intent-filter>
+        </receiver>
+
+        <receiver android:name=".MyReceiver">
         </receiver>
 
     </application>

@@ -210,7 +210,6 @@ public class LiveStreaming extends AppCompatActivity implements RtspClient.Callb
     }
 
 
-
     @Override
     public void onDestroy() {
         super.onDestroy();
